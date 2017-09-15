@@ -5,9 +5,11 @@ import socket
 
 sock = socket.socket()
 sock.connect(('localhost', 8080))
-sock.send('hello, world!')
+mess = bytearray(input('Ваше сообщение серверу: ').encode('utf-8'))
+sock.send(mess)
 
-data = sock.recv(1024)
+data = sock.recv(1024).decode('utf-8')
 sock.close()
 
-print data
+data
+print(data)
