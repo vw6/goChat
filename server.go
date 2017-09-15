@@ -1,51 +1,57 @@
 package main
 
 import (
-	"bufio"
-	"container/list"
 	"fmt"
 	"net"
+	"os"
 )
 
-var clients *list.List
-
-func handelClient(socket net.Conn) {
-	for {
-		buffer, err := bufio.NewReader(socket).ReadString('\n')
-		if err != nil {
-			fmt.Println("disconect")
-			socket.Close()
-			return
-		}
-		for i := clients.Front(); i != nil; i = i.Next() {
-			fmt.Println(i.Value.(net.Conn), buffer)
-		}
-	}
-}
+const (
+	CONN_HOST = "localhost"
+	CONN_PORT = "8080"
+	CONN_TYPE = "tcp"
+)
 
 func main() {
-	fmt.Println("Server started")
-
-	var clients = list.New()
-
-	server, err := net.Listen("tcp", ":8080")
-
+	// Listen for incoming connections.
+	l, err := net.Listen(CONN_TYPE, CONN_HOST+":"+CONN_PORT)
 	if err != nil {
-		fmt.Println("Error @s", err.Error())
-		return
+		fmt.Println("Error listening:", err.Error())
+		os.Exit(1)
+
 	}
+	// Close the listener when the application closes.
+	defer l.Close()
+	fmt.Println("Listening on " + CONN_HOST + ":" + CONN_PORT)
 	for {
-		client, err := server.Accept()
-
+		// Listen for an incoming connection.
+		conn, err := l.Accept()
 		if err != nil {
-			fmt.Println("Error: @s", err.Error())
-			return
-		}
-		fmt.Println("Connect", client.RemoteAddr())
-		if err != nil {
-			clients.PushBack(client)
-		}
+			fmt.Println("Error accepting: ", err.Error())
+			os.Exit(1)
 
-		go handelClient(client)
+		}
+		// Handle connections in a new goroutine.
+		go handleRequest(conn)
+
 	}
+
+}
+
+// Handles incoming requests.
+func handleRequest(conn net.Conn) {
+	// Make a buffer to hold incoming data.
+	buf := make([]byte, 1024)
+	// Read the incoming connection into the buffer.
+	_, err := conn.Read(buf)
+	if err != nil {
+		fmt.Println("Error reading:", err.Error())
+
+	}
+	// Send a response back to person contacting us.
+	// conn.Write([]byte("Message received.\n"))
+	conn.Write(buf)
+	// Close the connection when you're done with it.
+	conn.Close()
+
 }
