@@ -1,49 +1,50 @@
 package main
+
 import (
-"fmt"
-"net"
-"bufio"
-"container/list"
+	"bufio"
+	"container/list"
+	"fmt"
+	"net"
 )
 
 var clients *list.List
 
-func handelClient(socket net.Conn)  {
-	for{
+func handelClient(socket net.Conn) {
+	for {
 		buffer, err := bufio.NewReader(socket).ReadString('\n')
-		if err!= nil {
+		if err != nil {
 			fmt.Println("disconect")
 			socket.Close()
 			return
 		}
-		for i:=clients.Front(); i != nil ; i=i.Next(){
-			fmt.Print(i.Value.(net.Conn),buffer)
+		for i := clients.Front(); i != nil; i = i.Next() {
+			fmt.Println(i.Value.(net.Conn), buffer)
 		}
 	}
 }
 
-
 func main() {
-fmt.Println("Server started")
-	
-	clients = list.New()
+	fmt.Println("Server started")
 
-server,err := net.Listen("tcp",":8080")
+	var clients = list.New()
+
+	server, err := net.Listen("tcp", ":8080")
 
 	if err != nil {
-		fmt.Printf("Error @s", err.Error())
+		fmt.Println("Error @s", err.Error())
 		return
 	}
-	for{
+	for {
 		client, err := server.Accept()
 
 		if err != nil {
-			fmt.Printf("Error: @s", err.Error())
+			fmt.Println("Error: @s", err.Error())
 			return
 		}
-		fmt.Printf("Connect",client.RemoteAddr())
-		clients.PushBack(client)
-
+		fmt.Println("Connect", client.RemoteAddr())
+		if err != nil {
+			clients.PushBack(client)
+		}
 
 		go handelClient(client)
 	}
