@@ -11,5 +11,4 @@ sock.send(mess)
 # data = sock.recv(1024).decode('utf-8')
 sock.close()
 
-# data
 # print(data)

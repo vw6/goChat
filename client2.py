@@ -10,7 +10,8 @@ sock.connect(('localhost', 8080))
 # sock.send(mess)
 
 data = sock.recv(1024).decode('utf-8')
-sock.close()
-
-data
 print(data)
+data = sock.recv(1024).decode('utf-8')
+print(data)
+
+sock.close()
