@@ -67,5 +67,4 @@ func handleRequest(conns [2]net.Conn) {
     fmt.Println("disconect: ", conns[1].RemoteAddr())
     conns[0].Close()
     conns[1].Close()
-    i = 0
 }
