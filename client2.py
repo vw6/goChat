@@ -1,16 +1,13 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import socket
+import socket, curses
 
 sock = socket.socket()
 sock.connect(('localhost', 8080))
 
-# mess = bytearray(input('Ваше сообщение серверу: ').encode('utf-8'))
-# sock.send(mess)
+# myscreen = curses.initscr() 
 
-data = sock.recv(1024).decode('utf-8')
-print(data)
 data = sock.recv(1024).decode('utf-8')
 print(data)
 

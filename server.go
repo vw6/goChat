@@ -12,10 +12,9 @@ const (
     CONN_TYPE = "tcp"
 )
 
-func main() {
-    var i int = 0
-    var conns [2]net.Conn
+// var conns [2]net.Conn
 
+func main() {
     // Listen for incoming connections.
     l, err := net.Listen(CONN_TYPE, CONN_HOST+":"+CONN_PORT)
     if err != nil {
@@ -29,49 +28,43 @@ func main() {
     fmt.Println("Listening on " + CONN_HOST + ":" + CONN_PORT)
     for {
         // Listen for an incoming connection.
-        if (i == 0) {
-            conns[0], err = l.Accept()
-            if err != nil {
-                fmt.Println("Error accepting: ", err.Error())
-                os.Exit(1)
-            }
-
-            // Handle connections in a new goroutine.
-            fmt.Println("Connect: ", conns[0].RemoteAddr())
-            i++
-        } else {
-            conns[1], err = l.Accept()
-            if err != nil {
-                fmt.Println("Error accepting: ", err.Error())
-                os.Exit(1)
-            }
-
-            // Handle connections in a new goroutine.
-            fmt.Println("Connect: ", conns[1].RemoteAddr())
-            conns[1].Write([]byte("Соединение установленно!\n"))
-            go handleRequest(conns)
-            i = 0
+        conn, err := l.Accept()
+        if err != nil {
+            fmt.Println("Error accepting: ", err.Error())
+            os.Exit(1)
         }
+            // Handle connections in a new goroutine.
+        fmt.Println("Connect: ", conn.RemoteAddr())
+        conn.Write([]byte("Соединение установленно!1\n"))
+        conn.Write([]byte("Соединение установленно!2\n"))
+        conn.Write([]byte("Соединение установленно!3\n"))
+        conn.Write([]byte("Соединение установленно!4\n"))
+        conn.Write([]byte("Соединение установленно!5\n"))
+        conn.Write([]byte("Соединение установленно!6\n"))
+        conn.Write([]byte("Соединение установленно!7\n"))
+        conn.Write([]byte("Соединение установленно!8\n"))
+        conn.Write([]byte("Соединение установленно!9\n"))
+        conn.Write([]byte("Соединение установленно!0\n"))
+        go handleRequest(conn)
     }
 }
 
+
 // Handles incoming requests.
-func handleRequest(conns [2]net.Conn) {
+func handleRequest(conn net.Conn) {
     // Make a buffer to hold incoming data.
     buf := make([]byte, 1024)
 
     // Read the incoming connection into the buffer.
-    _, err := conns[0].Read(buf)
+    _, err := conn.Read(buf)
     if err != nil {
         fmt.Println("Error reading:", err.Error())
     }
 
     // Send a response back to person contacting us.
-    conns[1].Write(buf)
+    conn.Write(buf)
 
     // Close the connection when you're done with it.
-    defer fmt.Println("disconect: ", conns[0].RemoteAddr())
-    defer fmt.Println("disconect: ", conns[1].RemoteAddr())
-    defer conns[0].Close()
-    defer conns[1].Close()
+    defer fmt.Println("disconect: ", conn.RemoteAddr())
+    defer conn.Close()
 }
