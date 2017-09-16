@@ -1,9 +1,9 @@
 package main
 
 import (
-    "fmt"
-    "net"
-    "os"
+"fmt"
+"net"
+"os"
 )
 
 const (
@@ -13,6 +13,8 @@ const (
 )
 
 func main() {
+    var i int = 0
+    var conns [2]net.Conn
     // Listen for incoming connections.
     l, err := net.Listen(CONN_TYPE, CONN_HOST+":"+CONN_PORT)
     if err != nil {
@@ -24,30 +26,46 @@ func main() {
     fmt.Println("Listening on " + CONN_HOST + ":" + CONN_PORT)
     for {
         // Listen for an incoming connection.
-        conn, err := l.Accept()
-        if err != nil {
-            fmt.Println("Error accepting: ", err.Error())
-            os.Exit(1)
+        if (i == 0) {
+            conns[0], err = l.Accept()
+            if err != nil {
+                fmt.Println("Error accepting: ", err.Error())
+                os.Exit(1)
+            }
+            // Handle connections in a new goroutine.
+            fmt.Println("Connect: ", conns[0].RemoteAddr())
+            i++
+        } else {
+            conns[1], err = l.Accept()
+            if err != nil {
+                fmt.Println("Error accepting: ", err.Error())
+                os.Exit(1)
+            }
+            // Handle connections in a new goroutine.
+            fmt.Println("Connect: ", conns[1].RemoteAddr())
+            go handleRequest(conns)
+            i = 0
         }
-        // Handle connections in a new goroutine.
-        fmt.Println("Connect: ", conn.RemoteAddr())
-        go handleRequest(conn)
     }
 }
 
 // Handles incoming requests.
-func handleRequest(conn net.Conn) {
+func handleRequest(conns [2]net.Conn) {
     // Make a buffer to hold incoming data.
     buf := make([]byte, 1024)
     // Read the incoming connection into the buffer.
-    _, err := conn.Read(buf)
+    _, err := conns[0].Read(buf)
     if err != nil {
         fmt.Println("Error reading:", err.Error())
     }
     // Send a response back to person contacting us.
-    // conn.Write([]byte("Message received.\n"))
-    conn.Write(buf)
+    
+    conns[1].Write(buf)
+
     // Close the connection when you're done with it.
-    fmt.Println("disconect: ", conn.RemoteAddr())
-    conn.Close()
+    fmt.Println("disconect: ", conns[0].RemoteAddr())
+    fmt.Println("disconect: ", conns[1].RemoteAddr())
+    conns[0].Close()
+    conns[1].Close()
+    i = 0
 }
